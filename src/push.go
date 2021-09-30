@@ -140,7 +140,7 @@ func getOrCreateGitHubRepo(ctx context.Context, client *github.Client, repoName,
 	} else {
 		// ensure the org exists.
 		createRepoOrgName = ownerName
-		_, err := getOrCreateGitHubOrg(ctx, client, ownerName, *currentUser.Login)
+		_, err := getGitHubOrg(ctx, client, ownerName, *currentUser.Login)
 		if err != nil {
 			return nil, err
 		}
