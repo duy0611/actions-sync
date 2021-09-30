@@ -161,20 +161,14 @@ func getOrCreateGitHubRepo(ctx context.Context, client *github.Client, repoName,
 	return ghRepo, nil
 }
 
-func getOrCreateGitHubOrg(ctx context.Context, client *github.Client, orgName, admin string) (*github.Organization, error) {
+func getGitHubOrg(ctx context.Context, client *github.Client, orgName, admin string) (*github.Organization, error) {
 	org := &github.Organization{Login: &orgName}
 
-	var getErr error
-	ghOrg, _, createErr := client.Admin.CreateOrg(ctx, org, admin)
-	if createErr == nil {
-		fmt.Printf("Created organization `%s` (admin: %s)\n", orgName, admin)
-	} else {
-		// Regardless of why create failed, see if we can retrieve the org
-		ghOrg, _, getErr = client.Organizations.Get(ctx, orgName)
+	ghOrg, _, getErr = client.Organizations.Get(ctx, orgName)
+	if getErr != nil {
+		return nil, errors.Wrapf(getErr, "error getting organization %s", orgName)
 	}
-	if createErr != nil && getErr != nil {
-		return nil, errors.Wrapf(createErr, "error creating organization %s", orgName)
-	}
+
 	if ghOrg == nil {
 		return nil, errors.New("error organization is nil")
 	}
